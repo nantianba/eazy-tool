@@ -1,7 +1,7 @@
-package com.github.nantianba.tools.collections.impl;
+package com.github.nantianba.tools.multimap.impl;
 
-import com.github.nantianba.tools.collections.Index;
-import com.github.nantianba.tools.collections.MultiIndicesMap;
+import com.github.nantianba.tools.multimap.Index;
+import com.github.nantianba.tools.multimap.MultiIndicesMap;
 import io.reactivex.Observable;
 import lombok.Data;
 import org.junit.Test;

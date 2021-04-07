@@ -1,6 +1,6 @@
-package com.github.nantianba.tools.collections;
+package com.github.nantianba.tools.multimap;
 
-import com.github.nantianba.tools.collections.impl.DefaultMultiIndicesMap;
+import com.github.nantianba.tools.multimap.impl.DefaultMultiIndicesMap;
 
 import java.util.Collection;
 import java.util.List;

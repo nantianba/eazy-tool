@@ -1,6 +1,6 @@
-package com.github.nantianba.tools.collections;
+package com.github.nantianba.tools.multimap;
 
-import com.github.nantianba.tools.collections.impl.DefaultIndex;
+import com.github.nantianba.tools.multimap.impl.DefaultIndex;
 
 import java.util.function.Function;
 
