@@ -59,7 +59,7 @@ public class DefaultMultiIndicesMapTest {
 
         assert map2.get(STRING_INDEX, "129") != null;
         List<A> list129 = map2.get(STRING_INDEX, "129");
-        System.out.println("map2.get(stringIndex, \"129\").get(0) = " + list129.get(0));
+        System.out.println("map2.get(STRING_INDEX, \"129\") = " + list129.get(0));
 
         assert map2.getFirst(INTEGER_INDEX, 129) == list129.get(0);
 
