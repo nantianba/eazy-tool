@@ -1,13 +1,16 @@
 package com.github.nantianba.tools.streams.collection;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public interface CollectOperator<T> {
+    /**
+     * convert the collection to anther collection
+     */
+    <C extends Collection<T>>
+    C toCollection(Supplier<C> supplier);
+
 
     Set<T> toSet();
 
@@ -20,12 +23,24 @@ public interface CollectOperator<T> {
 
     ArrayList<T> toArrayList();
 
+    <K>
+    Map<K, T> toMap(Function<? super T, ? extends K> keyMapper);
 
-    /**
-     * key must be unique,or an exception will be thrown
-     */
-    <K, V> Map<K, V> toMap(Function<T, K> keyMapper, Function<T, V> valueMapper);
+    <K, V>
+    Map<K, V> toMap(Function<? super T, ? extends K> keyMapper,
+                    Function<? super T, ? extends V> valueMapper);
 
-    <K, V> Map<K, List<V>> groupBy(Function<T, K> keyMapper);
+    <K, V>
+    Map<K, List<V>> groupingBy(Function<? super T, ? extends K> keyMapper);
+
+    <K, C extends Collection<T>>
+    Map<K, C> groupingBy(Function<? super T, ? extends K> keyMapper,
+                      Supplier<C> downstreamSupplier);
+
+    <K, V, C extends Collection<V>>
+    Map<K, C> groupingBy(Function<? super T, ? extends K> keyMapper,
+                      Function<? super T, ? extends V> valueMapper,
+                      Supplier<C> downstreamSupplier);
+
 
 }

@@ -1,6 +1,6 @@
 package com.github.nantianba.tools.streams.collection;
 
-import com.github.nantianba.tools.streams.type.CollectionStream;
+import com.github.nantianba.tools.streams.CollectionStream;
 
 import java.util.Comparator;
 import java.util.function.Function;

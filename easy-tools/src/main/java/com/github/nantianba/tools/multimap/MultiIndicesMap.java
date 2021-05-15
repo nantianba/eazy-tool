@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * A map has multiple indices
+ * A map has multiple keys,element can be searched by one of them
  *
  * @param <T> generic type for elements
  */
