@@ -3,8 +3,10 @@ package com.github.nantianba.tools.streams.collection;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.BaseStream;
+import java.util.stream.Stream;
 
-public interface CollectOperator<T> {
+public interface CollectOperator<T> extends Stream<T> {
     /**
      * convert the collection to anther collection
      */
