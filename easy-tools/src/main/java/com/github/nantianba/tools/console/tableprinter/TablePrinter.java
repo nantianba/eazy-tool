@@ -84,7 +84,7 @@ public class TablePrinter {
             final Iterator<Integer> colWidthIter = colWidthMemo.iterator();
             final Iterator<String> dataIter = contents.iterator();
 
-            StringBuilder lineBuilder = new StringBuilder("|");
+            StringBuilder lineBuilder = new StringBuilder("│");
             while (colWidthIter.hasNext()) {
                 int colWidth = colWidthIter.next();
                 final String content = dataIter.next();
@@ -122,7 +122,7 @@ public class TablePrinter {
 
                 lineBuilder.append(repeat(' ', printSetting.getHorizontalPadding()));
 
-                lineBuilder.append("|");
+                lineBuilder.append("│");
             }
             builder.append(lineBuilder);
 
@@ -137,19 +137,19 @@ public class TablePrinter {
     private String buildRolBorder(boolean bottom) {
         final Stream<String> stream = colWidthMemo.stream()
                 .map(w -> getColWidth(w, printSetting))
-                .map(w -> repeat('-', w + (printSetting.getHorizontalPadding() << 1)));
+                .map(w -> repeat('─', w + (printSetting.getHorizontalPadding() << 1)));
 
-        return bottom ? stream.collect(Collectors.joining("-", "|", "|"))
-                : stream.collect(Collectors.joining("|", "|", "|"));
+        return bottom ? stream.collect(Collectors.joining("┴", "└", "┘"))
+                : stream.collect(Collectors.joining("┼", "├", "┤"));
     }
 
     private String buildHeaderBorder(boolean upper) {
         final Stream<String> stream = colWidthMemo.stream()
                 .map(w -> getColWidth(w, printSetting))
-                .map(w -> repeat('=', w + (printSetting.getHorizontalPadding() << 1)));
+                .map(w -> repeat('═', w + (printSetting.getHorizontalPadding() << 1)));
 
-        return upper ? stream.collect(Collectors.joining("=", "|", "|"))
-                : stream.collect(Collectors.joining("|", "|", "|"));
+        return upper ? stream.collect(Collectors.joining("╤", "╒", "╕"))
+                : stream.collect(Collectors.joining("╪", "╞", "╡"));
     }
 
     private int getColWidth(int w, PrintSetting printSetting) {
