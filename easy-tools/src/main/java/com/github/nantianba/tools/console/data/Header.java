@@ -1,15 +1,13 @@
 package com.github.nantianba.tools.console.data;
 
-import com.github.nantianba.tools.console.tableprinter.Align;
-
 public class Header extends Cell<String> {
 
-    public Header(String title, Align align) {
+    private Header(String title) {
         super(title);
     }
 
-    @Override
-    public char horizontal() {
-        return '=';
+    public static Header of(String val) {
+        return new Header(val);
     }
+
 }

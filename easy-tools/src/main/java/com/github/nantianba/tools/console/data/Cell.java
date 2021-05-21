@@ -1,9 +1,8 @@
 package com.github.nantianba.tools.console.data;
 
-import com.github.nantianba.tools.console.tableprinter.BorderSetting;
 import lombok.Getter;
 
-public class Cell<T> implements BorderSetting {
+public class Cell<T> {
     @Getter
     private final T data;
     @Getter
