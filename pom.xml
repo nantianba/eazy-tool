@@ -7,7 +7,7 @@
     <groupId>com.github.nantianba</groupId>
     <artifactId>tools</artifactId>
     <packaging>pom</packaging>
-    <version>1.0</version>
+    <version>0.1</version>
     <modules>
         <module>easy-tools</module>
     </modules>

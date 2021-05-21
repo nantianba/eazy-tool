@@ -1,7 +1,6 @@
 package com.github.nantianba.tools.console.tableprinter;
 
 import com.github.nantianba.tools.console.GridTable;
-import lombok.Data;
 import org.junit.Test;
 
 import java.io.PrintWriter;
@@ -35,11 +34,11 @@ public class TablePrinterTest {
     public void write2() {
         final List<A> source = Stream.generate(() -> {
             final A a = new A();
-            a.testAString="";
-            a.testBString="";
-            a.testCString="";
-            a.testCStringLong="";
-            a.testDStringLong="";
+            a.testAString = "";
+            a.testBString = "";
+            a.testCString = "";
+            a.testCStringLong = "";
+            a.testDStringLong = "";
             return a;
         })
                 .limit(15)
@@ -48,6 +47,7 @@ public class TablePrinterTest {
                 .printer(PrintSetting.defaultSetting())
                 .write(new PrintWriter(System.out));
     }
+
     static class A {
         String testAString = "43t24rv54c51345c=2.34r24";
         String testBString = "44r24";
