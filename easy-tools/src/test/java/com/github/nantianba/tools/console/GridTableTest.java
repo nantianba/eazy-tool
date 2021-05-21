@@ -12,7 +12,7 @@ public class GridTableTest {
     public void from() {
         final List<Integer> list = Arrays.asList(1, 2, 3);
         final GridTable table = GridTable.from(list);
-        table.addHeaders(Line.single("test"));
+        table.setHeaders(Line.single("test"));
         System.out.println("table.getHeaders().getCells().get(0).getContent() = " + table.getHeaders().getCells().get(0).getContent());
 
         for (Line line : table.getLines()) {

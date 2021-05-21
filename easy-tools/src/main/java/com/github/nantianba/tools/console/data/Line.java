@@ -2,6 +2,7 @@ package com.github.nantianba.tools.console.data;
 
 import lombok.Getter;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -19,6 +20,9 @@ public class Line {
         return new Line(cells);
     }
 
+    public static Line ofData(Object... objects) {
+        return of(Arrays.stream(objects).map(Cell::of).collect(Collectors.toList()));
+    }
     public static Line ofData(Collection<?> objects) {
         return of(objects.stream().map(Cell::of).collect(Collectors.toList()));
     }

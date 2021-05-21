@@ -2,7 +2,6 @@ package com.github.nantianba.tools.console;
 
 import com.github.nantianba.tools.console.data.Header;
 import com.github.nantianba.tools.console.data.Line;
-import com.github.nantianba.tools.console.tableprinter.Align;
 import com.github.nantianba.tools.console.tableprinter.PrintSetting;
 import com.github.nantianba.tools.console.tableprinter.TablePrinter;
 import lombok.Getter;
@@ -24,8 +23,10 @@ public class GridTable {
         return EMPTY;
     }
 
-    public void addHeaders(Line headers) {
+    public GridTable setHeaders(Line headers) {
         this.headers = headers;
+
+        return this;
     }
 
     public boolean hasHeader() {
@@ -76,17 +77,17 @@ public class GridTable {
         final List<Line> lines = new LinkedList<>();
 
         for (Object object : objects) {
-            final LinkedList<Object> datas = new LinkedList<>();
+            final LinkedList<Object> data = new LinkedList<>();
             for (Field field : fields) {
                 try {
                     field.setAccessible(true);
-                    datas.add(field.get(object));
+                    data.add(field.get(object));
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
             }
 
-            lines.add(Line.ofData(datas));
+            lines.add(Line.ofData(data));
         }
 
         return new GridTable(headerLine, lines);
@@ -96,5 +97,7 @@ public class GridTable {
         return new TablePrinter(this, printSetting);
     }
 
-
+    public TablePrinter printer() {
+        return printer(PrintSetting.defaultSetting());
+    }
 }

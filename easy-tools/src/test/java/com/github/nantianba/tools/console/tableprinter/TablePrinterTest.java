@@ -1,10 +1,16 @@
 package com.github.nantianba.tools.console.tableprinter;
 
 import com.github.nantianba.tools.console.GridTable;
+import com.github.nantianba.tools.console.data.Line;
 import org.junit.Test;
 
 import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -16,17 +22,43 @@ public class TablePrinterTest {
                 .limit(15)
                 .collect(Collectors.toList());
 
+        final A a = new A();
+        a.testAString = "";
+        a.testBString = "";
+        a.testCString = "";
+        a.testCStringLong = "";
+        a.testDStringLong = "";
+        a.calendar=null;
+
+        source.add(0,a);
+
         GridTable.from(source).printer(PrintSetting.builder()
                 .align(Align.Left)
+                .truncTooLong(true)
+                .truncLimitWidth(100)
                 .build())
+                .addTypeWriter(Calendar.class, obj -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(obj.getTime()))
+                .write(new PrintWriter(System.out));
+    }
+
+    @Test
+    public void map() {
+        Map<String,String> map=new HashMap<>();
+
+        for (int i = 0; i < 10; i++) {
+            map.put("asdfasd"+i,"sdfasd+"+i);
+        }
+
+        GridTable.from(map)
+                .setHeaders(Line.ofData("Key","Value"))
+                .printer()
                 .write(new PrintWriter(System.out));
     }
 
     @Test
     public void testEmpty() {
-        GridTable.empty().printer(PrintSetting.builder()
-                .align(Align.Left)
-                .build())
+        GridTable.empty()
+                .printer()
                 .write(new PrintWriter(System.out));
     }
 
@@ -53,6 +85,7 @@ public class TablePrinterTest {
         String testBString = "44r24";
         String testCString = "44r24";
         String testCStringLong = null;
+        Calendar calendar=Calendar.getInstance();
         String testDStringLong = "sdfasdfa sdfdfasdfwae4fda fdsafsdfadfasdfasdfas drq234r34c ";
     }
 }
