@@ -17,19 +17,9 @@ public class TablePrinterTest {
 
     @Test
     public void write() {
-        final List<A> source = Stream.generate(A::new)
-                .limit(15)
+        final List<Obj> source = Stream.generate(Obj::new)
+                .limit(3)
                 .collect(Collectors.toList());
-
-        final A a = new A();
-        a.testAString = "";
-        a.testBString = "";
-        a.testCString = "";
-        a.testCStringLong = "";
-        a.testDStringLong = "";
-        a.calendar = null;
-
-        source.add(0, a);
 
         DataTable.from(source)
                 .printer(PrintSetting.builder()
@@ -64,8 +54,8 @@ public class TablePrinterTest {
 
     @Test
     public void write2() {
-        final List<A> source = Stream.generate(() -> {
-            final A a = new A();
+        final List<Obj> source = Stream.generate(() -> {
+            final Obj a = new Obj();
             a.testAString = "";
             a.testBString = "";
             a.testCString = "";
@@ -80,7 +70,7 @@ public class TablePrinterTest {
                 .write(new PrintWriter(System.out));
     }
 
-    static class A {
+    static class Obj {
         String testAString = "43t24rv54c51345c=2.34r24";
         String testBString = "44r24";
         String testCString = "44r24";
