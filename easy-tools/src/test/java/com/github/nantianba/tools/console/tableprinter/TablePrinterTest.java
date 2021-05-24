@@ -1,11 +1,10 @@
 package com.github.nantianba.tools.console.tableprinter;
 
-import com.github.nantianba.tools.console.GridTable;
+import com.github.nantianba.tools.console.DataTable;
 import com.github.nantianba.tools.console.data.Line;
 import org.junit.Test;
 
 import java.io.PrintWriter;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -28,36 +27,37 @@ public class TablePrinterTest {
         a.testCString = "";
         a.testCStringLong = "";
         a.testDStringLong = "";
-        a.calendar=null;
+        a.calendar = null;
 
-        source.add(0,a);
+        source.add(0, a);
 
-        GridTable.from(source).printer(PrintSetting.builder()
-                .align(Align.Left)
-                .truncTooLong(true)
-                .truncLimitWidth(100)
-                .build())
+        DataTable.from(source)
+                .printer(PrintSetting.builder()
+                        .align(Align.Center)
+                        .truncTooLong(true)
+                        .showIndex(true)
+                        .truncLimitWidth(100).build())
                 .addTypeWriter(Calendar.class, obj -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(obj.getTime()))
                 .write(new PrintWriter(System.out));
     }
 
     @Test
     public void map() {
-        Map<String,String> map=new HashMap<>();
+        Map<String, String> map = new HashMap<>();
 
         for (int i = 0; i < 10; i++) {
-            map.put("asdfasd"+i,"sdfasd+"+i);
+            map.put("asdfasd" + i, "sdfasd+" + i);
         }
 
-        GridTable.from(map)
-                .setHeaders(Line.ofData("Key","Value"))
+        DataTable.from(map)
+                .setHeaders(Line.ofData("Key", "Value"))
                 .printer()
                 .write(new PrintWriter(System.out));
     }
 
     @Test
     public void testEmpty() {
-        GridTable.empty()
+        DataTable.empty()
                 .printer()
                 .write(new PrintWriter(System.out));
     }
@@ -75,7 +75,7 @@ public class TablePrinterTest {
         })
                 .limit(15)
                 .collect(Collectors.toList());
-        GridTable.from(source)
+        DataTable.from(source)
                 .printer(PrintSetting.defaultSetting())
                 .write(new PrintWriter(System.out));
     }
@@ -85,7 +85,7 @@ public class TablePrinterTest {
         String testBString = "44r24";
         String testCString = "44r24";
         String testCStringLong = null;
-        Calendar calendar=Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance();
         String testDStringLong = "sdfasdfa sdfdfasdfwae4fda fdsafsdfadfasdfasdfas drq234r34c ";
     }
 }

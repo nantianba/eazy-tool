@@ -1,6 +1,6 @@
 package com.github.nantianba.tools.console.tableprinter;
 
-import com.github.nantianba.tools.console.GridTable;
+import com.github.nantianba.tools.console.DataTable;
 import com.github.nantianba.tools.console.data.Cell;
 import com.github.nantianba.tools.console.data.Line;
 import lombok.var;
@@ -17,14 +17,16 @@ public class TablePrinter {
     private final int colNum;
     private final PrintSetting printSetting;
     private final ArrayList<Integer> colWidthMemo;
+    private final int indexWidth;
     private final Map<Class, TypeWriter> typeWriters = new HashMap<>();
 
 
-    public TablePrinter(GridTable gridTable, PrintSetting printSetting) {
-        this.headers = gridTable.getHeaders();
-        this.data = gridTable.getLines();
+    public TablePrinter(DataTable dataTable, PrintSetting printSetting) {
+        this.headers = dataTable.getHeaders();
+        this.data = dataTable.getLines();
         this.printSetting = printSetting;
         this.colNum = this.data.get(0).getCells().size();
+        this.indexWidth = printSetting.isShowIndex() ? String.valueOf(this.data.size()).length() : 0;
 
         this.colWidthMemo = IntStream.range(0, colNum).map(i -> 0)
                 .boxed()
@@ -41,30 +43,101 @@ public class TablePrinter {
 
     public void write(PrintWriter writer) {
         final boolean noHeader = headers == null;
-        if (!noHeader) {
-            writer.println(buildHeaderBorder(true));
-            writer.println(buildLine(headers));
-            writer.println(buildHeaderBorder(false));
-        } else {
+        if (noHeader) {
             writer.println(buildRolBorder(false, true));
+        } else {
+            writer.println(buildHeaderBorder(true));
+            writer.println(buildLine(headers, ""));
+            writer.println(buildHeaderBorder(false));
         }
 
-        writer.println(data.stream()
-                .map(this::buildLine)
-                .collect(Collectors.joining("\n" + buildRolBorder(false, false) + "\n",
-                        "",
-                        "\n" + buildRolBorder(true, false))
-                )
-        );
+        StringJoiner tableJointer = new StringJoiner(
+                "\n" + buildRolBorder(false, false) + "\n",
+                "",
+                "\n" + buildRolBorder(true, false));
+
+        for (int inex = 0, dataSize = data.size(); inex < dataSize; inex++) {
+            tableJointer.add(buildLine(data.get(inex), inex));
+        }
+
+        writer.println(tableJointer);
 
         writer.flush();
     }
 
-    private String buildLine(Line line) {
-        var cols = line.getCells();
+    private String buildLine(Line line, Object indexContent) {
+        LinkedList<String> printContents = getPrintContent(line);
 
-        List<String> contents = new LinkedList<>();
-        for (Cell col : cols) {
+        if (printSetting.isShowIndex()) {
+            printContents.addFirst(String.valueOf(indexContent));
+        }
+
+        int lineCount = getLineCount(printContents);
+
+        StringBuilder builder = new StringBuilder();
+
+        for (int lineNo = 0; lineNo < lineCount; lineNo++) {
+            final Iterator<Integer> colWidthIter = getColWidthMemo().iterator();
+            final Iterator<String> dataIter = printContents.iterator();
+
+            StringBuilder lineBuilder = new StringBuilder("│");
+            while (colWidthIter.hasNext()) {
+                final String content = dataIter.next();
+
+                int colWidth = colWidthIter.next();
+                colWidth = Integer.max(colWidth, printSetting.getMinColWidth());
+                colWidth = Integer.min(colWidth, printSetting.getMaxColWidth());
+
+                int offset = lineNo * printSetting.getMaxColWidth();
+                int maxPosition = offset + colWidth;
+
+                String contentThisLine;
+                if (content.length() <= offset) {
+                    contentThisLine = "";
+                } else {
+                    if (content.length() < maxPosition) {
+                        contentThisLine = content.substring(offset);
+                    } else {
+                        contentThisLine = content.substring(offset, maxPosition);
+                    }
+                }
+
+                final int length = contentThisLine.length();
+
+                lineBuilder.append(repeat(' ', printSetting.getHorizontalPadding()));
+
+                printSetting.getAlign().addPadding(lineBuilder, contentThisLine, colWidth - length, ' ');
+
+                lineBuilder.append(repeat(' ', printSetting.getHorizontalPadding()));
+                lineBuilder.append("│");
+            }
+            builder.append(lineBuilder);
+
+            if (lineCount > 1 && lineNo != lineCount - 1) {
+                builder.append("\n");
+            }
+        }
+
+        return builder.toString();
+    }
+
+    private int getLineCount(List<String> contents) {
+        int rolMaxPrintLength = contents.stream().mapToInt(String::length).max().getAsInt();
+
+        if (printSetting.isTruncTooLong() && printSetting.getTruncLimitWidth() < rolMaxPrintLength) {
+            rolMaxPrintLength = printSetting.getTruncLimitWidth();
+        }
+
+        int lineNum = rolMaxPrintLength / printSetting.getMaxColWidth() + (rolMaxPrintLength % printSetting.getMaxColWidth() == 0 ? 0 : 1);
+
+        lineNum = Integer.max(lineNum, 1);
+        return lineNum;
+    }
+
+    private LinkedList<String> getPrintContent(Line line) {
+        LinkedList<String> contents = new LinkedList<>();
+
+        for (Cell col : line.getCells()) {
             final TypeWriter typeWriter;
             final String content;
 
@@ -80,72 +153,7 @@ public class TablePrinter {
                 contents.add(content);
             }
         }
-
-
-        int maxContentLength = contents.stream().mapToInt(String::length).max().getAsInt();
-
-        if (printSetting.isTruncTooLong() && printSetting.getTruncLimitWidth() < maxContentLength) {
-            maxContentLength = printSetting.getTruncLimitWidth();
-        }
-
-        int lineNum = maxContentLength / printSetting.getMaxColWidth() + (maxContentLength % printSetting.getMaxColWidth() == 0 ? 0 : 1);
-
-        lineNum = Integer.max(lineNum, 1);
-
-        StringBuilder builder = new StringBuilder();
-
-        for (int i = 0; i < lineNum; i++) {
-            final Iterator<Integer> colWidthIter = colWidthMemo.iterator();
-            final Iterator<String> dataIter = contents.iterator();
-
-            StringBuilder lineBuilder = new StringBuilder("│");
-            while (colWidthIter.hasNext()) {
-                int colWidth = colWidthIter.next();
-                final String content = dataIter.next();
-
-                colWidth = Integer.max(printSetting.getMinColWidth(), colWidth);
-                colWidth = Integer.min(colWidth, printSetting.getMaxColWidth());
-
-                int offset = i * printSetting.getMaxColWidth();
-                int maxPosition = offset + colWidth;
-
-                String contentThis = content.length() <= offset
-                        ? ""
-                        :
-                        (content.length() < maxPosition
-                                ? content.substring(offset)
-                                : content.substring(offset, maxPosition));
-
-                final int length = contentThis.length();
-
-                lineBuilder.append(repeat(' ', printSetting.getHorizontalPadding()));
-
-                switch (printSetting.getAlign()) {
-                    case Left:
-                        lineBuilder.append(contentThis).append(repeat(' ', colWidth - length));
-                        break;
-                    case Center:
-                        int leftRepeatNum = (colWidth - length) / 2;
-                        int rightRepeatNum = colWidth - length - leftRepeatNum;
-                        lineBuilder.append(repeat(' ', leftRepeatNum)).append(contentThis).append(repeat(' ', rightRepeatNum));
-                        break;
-                    case Right:
-                        lineBuilder.append(repeat(' ', colWidth - length)).append(contentThis);
-                        break;
-                }
-
-                lineBuilder.append(repeat(' ', printSetting.getHorizontalPadding()));
-
-                lineBuilder.append("│");
-            }
-            builder.append(lineBuilder);
-
-            if (lineNum > 1 && i != lineNum - 1) {
-                builder.append("\n");
-            }
-        }
-
-        return builder.toString();
+        return contents;
     }
 
     private TypeWriter getTypeWriter(Object obj) {
@@ -157,10 +165,26 @@ public class TablePrinter {
                 .orElse(null);
     }
 
-    private String buildRolBorder(boolean bottom, boolean noHeader) {
-        final Stream<String> stream = colWidthMemo.stream()
+    private Stream<Integer> getColWidthMemo() {
+        if (printSetting.isShowIndex()) {
+            return Stream.concat(Stream.of(indexWidth), colWidthMemo.stream());
+        }
+        return colWidthMemo.stream();
+    }
+
+    private String buildHeaderBorder(boolean upper) {
+        final Stream<String> stream = getColWidthMemo()
                 .map(w -> getColWidth(w, printSetting))
-                .map(w -> repeat('─', w + (printSetting.getHorizontalPadding() << 1)));
+                .map(w -> repeat('═', w));
+
+        return upper ? stream.collect(Collectors.joining("╤", "╒", "╕"))
+                : stream.collect(Collectors.joining("╪", "╞", "╡"));
+    }
+
+    private String buildRolBorder(boolean bottom, boolean noHeader) {
+        final Stream<String> stream = getColWidthMemo()
+                .map(w -> getColWidth(w, printSetting))
+                .map(w -> repeat('─', w));
 
         if (bottom) {
             return stream.collect(Collectors.joining("┴", "└", "┘"));
@@ -171,18 +195,9 @@ public class TablePrinter {
         return stream.collect(Collectors.joining("┼", "├", "┤"));
     }
 
-    private String buildHeaderBorder(boolean upper) {
-        final Stream<String> stream = colWidthMemo.stream()
-                .map(w -> getColWidth(w, printSetting))
-                .map(w -> repeat('═', w + (printSetting.getHorizontalPadding() << 1)));
-
-        return upper ? stream.collect(Collectors.joining("╤", "╒", "╕"))
-                : stream.collect(Collectors.joining("╪", "╞", "╡"));
-    }
-
     private int getColWidth(int w, PrintSetting printSetting) {
         final int ans = Integer.min(w, printSetting.getMaxColWidth());
-        return Integer.max(printSetting.getMinColWidth(), ans);
+        return Integer.max(printSetting.getMinColWidth(), ans) + (printSetting.getHorizontalPadding() << 1);
     }
 
     private String repeat(char c, int length) {
@@ -194,7 +209,7 @@ public class TablePrinter {
         return s.toString();
     }
 
-    private void checkLineWidth(Line line) {
+    private void findMaxColumnWidth(Line line) {
         var iterator = line.getCells().iterator();
         int i = 0;
         while (iterator.hasNext()) {
@@ -210,11 +225,11 @@ public class TablePrinter {
 
     private void init() {
         if (headers != null) {
-            checkLineWidth(headers);
+            findMaxColumnWidth(headers);
         }
 
         for (Line line : data) {
-            checkLineWidth(line);
+            findMaxColumnWidth(line);
         }
     }
 }

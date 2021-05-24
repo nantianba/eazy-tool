@@ -1,4 +1,4 @@
 # eazy-tool
-some tool to write easier code for java
+some tools by java   
 
 ## Print a table on console

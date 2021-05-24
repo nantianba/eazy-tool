@@ -6,12 +6,12 @@ import org.junit.Test;
 
 import java.util.*;
 
-public class GridTableTest {
+public class DataTableTest {
 
     @Test
     public void from() {
         final List<Integer> list = Arrays.asList(1, 2, 3);
-        final GridTable table = GridTable.from(list);
+        final DataTable table = DataTable.from(list);
         table.setHeaders(Line.single("test"));
         System.out.println("table.getHeaders().getCells().get(0).getContent() = " + table.getHeaders().getCells().get(0).getContent());
 
@@ -24,7 +24,7 @@ public class GridTableTest {
     public void fromMap() {
         final HashMap<Object, Object> map = new HashMap<>();
         map.put("test", "test");
-        final GridTable from = GridTable.from(map);
+        final DataTable from = DataTable.from(map);
 
         for (Line line : from.getLines()) {
             for (Cell cell : line.getCells()) {
@@ -45,7 +45,7 @@ public class GridTableTest {
         e.c=1;
         e.d=true;
         objects.add(e);
-        final GridTable table = GridTable.from(objects);
+        final DataTable table = DataTable.from(objects);
         for (Cell cell : table.getHeaders().getCells()) {
             System.out.print(cell.getContent() + "\t");
         }

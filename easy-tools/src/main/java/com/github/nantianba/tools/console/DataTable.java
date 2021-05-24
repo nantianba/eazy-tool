@@ -11,19 +11,19 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class GridTable {
+public class DataTable {
     @Getter
     private Line headers;
     @Getter
     private final List<Line> lines;
 
-    private static GridTable EMPTY = new GridTable(null, Collections.singletonList(Line.single("empty")));
+    private static DataTable EMPTY = new DataTable(null, Collections.singletonList(Line.single("empty")));
 
-    public static GridTable empty() {
+    public static DataTable empty() {
         return EMPTY;
     }
 
-    public GridTable setHeaders(Line headers) {
+    public DataTable setHeaders(Line headers) {
         this.headers = headers;
 
         return this;
@@ -33,28 +33,28 @@ public class GridTable {
         return headers != null;
     }
 
-    private GridTable(List<Line> lines) {
+    private DataTable(List<Line> lines) {
         this.lines = lines;
         this.headers = null;
     }
 
-    private GridTable(Line headers, List<Line> lines) {
+    private DataTable(Line headers, List<Line> lines) {
         this.headers = headers;
 
         this.lines = lines;
     }
 
-    public static GridTable from(Map<?, ?> map) {
+    public static DataTable from(Map<?, ?> map) {
         final List<Line> lines = new LinkedList<>();
         for (var p : map.entrySet()) {
             lines.add(Line.ofData(Arrays.asList(p.getKey(), p.getValue())));
         }
-        return new GridTable(lines);
+        return new DataTable(lines);
     }
 
-    public static GridTable from(Collection<?> objects) {
+    public static DataTable from(Collection<?> objects) {
         if (objects == null || objects.size() == 0) {
-            return GridTable.empty();
+            return DataTable.empty();
         }
 
         final Object first = objects.stream().findFirst().get();
@@ -64,7 +64,7 @@ public class GridTable {
                     .map(Line::single)
                     .collect(Collectors.toList());
 
-            return new GridTable(null, lines);
+            return new DataTable(null, lines);
         }
 
         final Field[] fields = first.getClass().getDeclaredFields();
@@ -90,7 +90,7 @@ public class GridTable {
             lines.add(Line.ofData(data));
         }
 
-        return new GridTable(headerLine, lines);
+        return new DataTable(headerLine, lines);
     }
 
     public TablePrinter printer(PrintSetting printSetting) {

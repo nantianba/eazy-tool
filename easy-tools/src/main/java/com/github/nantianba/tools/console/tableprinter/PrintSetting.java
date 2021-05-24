@@ -20,6 +20,8 @@ public class PrintSetting {
     private final int truncLimitWidth = 100;
     @Builder.Default
     private final int horizontalPadding = 1;
+    @Builder.Default
+    private final boolean showIndex = false;
 
     public static PrintSetting defaultSetting() {
         return PrintSetting.builder().build();
