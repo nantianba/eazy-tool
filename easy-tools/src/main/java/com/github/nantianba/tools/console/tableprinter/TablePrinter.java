@@ -77,19 +77,16 @@ public class TablePrinter {
         StringBuilder builder = new StringBuilder();
 
         for (int lineNo = 0; lineNo < lineCount; lineNo++) {
-            final Iterator<Integer> colWidthIter = getColWidthMemo().iterator();
+            final Iterator<Integer> colMaxWidthIter = getColWidthMemo().iterator();
             final Iterator<String> dataIter = printContents.iterator();
 
             StringBuilder lineBuilder = new StringBuilder("│");
-            while (colWidthIter.hasNext()) {
+            while (colMaxWidthIter.hasNext()) {
                 final String content = dataIter.next();
 
-                int colWidth = colWidthIter.next();
-                colWidth = Integer.max(colWidth, printSetting.getMinColWidth());
-                colWidth = Integer.min(colWidth, printSetting.getMaxColWidth());
-
+                int colMaxWidth = limitColWidth(colMaxWidthIter.next());
                 int offset = lineNo * printSetting.getMaxColWidth();
-                int maxPosition = offset + colWidth;
+                int maxPosition = offset + colMaxWidth;
 
                 String contentThisLine;
                 if (content.length() <= offset) {
@@ -106,7 +103,7 @@ public class TablePrinter {
 
                 lineBuilder.append(repeat(' ', printSetting.getHorizontalPadding()));
 
-                printSetting.getAlign().addPadding(lineBuilder, contentThisLine, colWidth - length, ' ');
+                printSetting.getAlign().addPadding(lineBuilder, contentThisLine, colMaxWidth - length, ' ');
 
                 lineBuilder.append(repeat(' ', printSetting.getHorizontalPadding()));
                 lineBuilder.append("│");
@@ -174,8 +171,8 @@ public class TablePrinter {
 
     private String buildHeaderBorder(boolean upper) {
         final Stream<String> stream = getColWidthMemo()
-                .map(w -> getColWidth(w, printSetting))
-                .map(w -> repeat('═', w));
+                .map(this::limitColWidth)
+                .map(w -> repeat('═', w + (printSetting.getHorizontalPadding() << 1)));
 
         return upper ? stream.collect(Collectors.joining("╤", "╒", "╕"))
                 : stream.collect(Collectors.joining("╪", "╞", "╡"));
@@ -183,8 +180,8 @@ public class TablePrinter {
 
     private String buildRolBorder(boolean bottom, boolean noHeader) {
         final Stream<String> stream = getColWidthMemo()
-                .map(w -> getColWidth(w, printSetting))
-                .map(w -> repeat('─', w));
+                .map(this::limitColWidth)
+                .map(w -> repeat('─', w + (printSetting.getHorizontalPadding() << 1)));
 
         if (bottom) {
             return stream.collect(Collectors.joining("┴", "└", "┘"));
@@ -195,9 +192,9 @@ public class TablePrinter {
         return stream.collect(Collectors.joining("┼", "├", "┤"));
     }
 
-    private int getColWidth(int w, PrintSetting printSetting) {
+    private int limitColWidth(int w) {
         final int ans = Integer.min(w, printSetting.getMaxColWidth());
-        return Integer.max(printSetting.getMinColWidth(), ans) + (printSetting.getHorizontalPadding() << 1);
+        return Integer.max(printSetting.getMinColWidth(), ans);
     }
 
     private String repeat(char c, int length) {
@@ -209,7 +206,7 @@ public class TablePrinter {
         return s.toString();
     }
 
-    private void findMaxColumnWidth(Line line) {
+    private void findColumnMaxWidth(Line line) {
         var iterator = line.getCells().iterator();
         int i = 0;
         while (iterator.hasNext()) {
@@ -225,11 +222,11 @@ public class TablePrinter {
 
     private void init() {
         if (headers != null) {
-            findMaxColumnWidth(headers);
+            findColumnMaxWidth(headers);
         }
 
         for (Line line : data) {
-            findMaxColumnWidth(line);
+            findColumnMaxWidth(line);
         }
     }
 }

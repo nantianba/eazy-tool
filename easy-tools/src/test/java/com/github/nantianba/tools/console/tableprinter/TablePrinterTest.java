@@ -86,6 +86,6 @@ public class TablePrinterTest {
         String testCString = "44r24";
         String testCStringLong = null;
         Calendar calendar = Calendar.getInstance();
-        String testDStringLong = "sdfasdfa sdfdfasdfwae4fda fdsafsdfadfasdfasdfas drq234r34c ";
+        String testDStringLong = "sdfasdfda sdfdfasdfwae4fda fdsafsdfadfasdfasdfas drq234r34c ";
     }
 }
